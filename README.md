@@ -1,112 +1,112 @@
-# Discrete Mathematics Project: Propositional Logic Parser
+# 离散数学课程项目：命题逻辑解析器
 
-This repository contains the parser module for a discrete mathematics course project. The project focuses on building a propositional logic reasoning system, starting from formula parsing and extending toward truth-table generation, CNF conversion, DPLL SAT solving, and puzzle visualization.
+本仓库是离散数学课程结课项目中的公式解析器模块。整个项目目标是实现一个命题逻辑推理系统，从公式字符串输入开始，逐步完成 AST 构建、真值表生成、CNF 转换、DPLL SAT 求解，并最终服务于谜题建模和可视化展示。
 
-## About
+## 项目说明
 
-### Goal
+### 项目目标
 
-The goal of this project is to implement a propositional logic reasoning pipeline:
+本项目希望实现一条完整的命题逻辑推理流程：
 
-1. Parse propositional logic formulas from strings.
-2. Build a shared abstract syntax tree (AST).
-3. Use the AST as the common input for later modules such as truth-table evaluation, CNF conversion, and SAT solving.
-4. Provide JSON output so that C++ core modules can be called from a Python visualization layer.
+1. 从字符串中解析命题逻辑公式。
+2. 构建统一的抽象语法树 AST。
+3. 将 AST 作为后续真值表、CNF 转换、SAT 求解等模块的公共输入。
+4. 通过 JSON 输出，让 C++ 核心模块可以被 Python 可视化层调用。
 
-The current repository contains the completed parser module.
+当前仓库已经完成的是第 1 人负责的公式解析器模块。
 
-### Result Format
+### 结果形式
 
-The parser reads a formula string and prints a compact JSON AST to `stdout`.
+解析器读取一个公式字符串，并向标准输出 `stdout` 打印紧凑格式的 JSON AST。
 
-Example input:
+示例输入：
 
 ```text
 (A∧B)→C
 ```
 
-Example output:
+示例输出：
 
 ```json
 {"type":"implies","left":{"type":"and","children":[{"type":"var","name":"A"},{"type":"var","name":"B"}]},"right":{"type":"var","name":"C"}}
 ```
 
-Invalid input returns a JSON object with an `error` field:
+如果输入非法，程序会返回包含 `error` 字段的 JSON：
 
 ```json
 {"error":"Unexpected end of input"}
 ```
 
-### Team Division
+### 小组分工
 
-The full course project is divided into the following modules:
+完整课程项目分为以下模块：
 
-| Member | Responsibility | Deliverable |
+| 成员 | 负责内容 | 交付物 |
 | --- | --- | --- |
-| Person 1 | Formula parser | `parser.cpp`, `parser.h`, executable `parser` / `parser.exe` |
-| Person 2 | Truth-table module | `truth_table.cpp`, JSON truth-table output |
-| Person 3 | CNF converter | `cnf.cpp`, JSON clause-set output |
-| Person 4 | DPLL SAT solver | `dpll.cpp`, SAT result and assignment output |
-| Person 5 | Presentation slides | Final project presentation |
-| Person 6 | Puzzle modeling and Streamlit visualization | `puzzles.py`, `app.py`, visualization UI |
-| Person 7 | Theory explanation and oral presentation | Presentation outline and script |
+| 人 1 | 公式解析器 | `parser.cpp`、`parser.h`、可执行文件 `parser` / `parser.exe` |
+| 人 2 | 真值表模块 | `truth_table.cpp`、JSON 真值表输出 |
+| 人 3 | CNF 转换器 | `cnf.cpp`、JSON 子句集输出 |
+| 人 4 | DPLL SAT 求解器 | `dpll.cpp`、SAT 结果和赋值输出 |
+| 人 5 | PPT 制作 | 项目汇报 PPT |
+| 人 6 | 谜题建模与 Streamlit 可视化 | `puzzles.py`、`app.py`、可视化界面 |
+| 人 7 | 理论讲解与汇报主讲 | 理论提纲和演讲稿 |
 
-## Supported Syntax
+## 支持的公式语法
 
-Variables:
+变量命名规则：
 
 ```text
 [A-Za-z][A-Za-z0-9_]*
 ```
 
-Operators:
+支持的运算符：
 
-| Logic | Unicode | ASCII aliases |
+| 逻辑含义 | Unicode 写法 | ASCII 备用写法 |
 | --- | --- | --- |
-| NOT | `¬` | `!`, `~` |
-| AND | `∧` | `&`, `&&` |
-| OR | `∨` | `|`, `||` |
-| IMPLIES | `→` | `->`, `=>` |
-| IFF | `↔` | `<->`, `<=>` |
+| 否定 | `¬` | `!`、`~` |
+| 合取 | `∧` | `&`、`&&` |
+| 析取 | `∨` | `|`、`||` |
+| 蕴含 | `→` | `->`、`=>` |
+| 等价 | `↔` | `<->`、`<=>` |
 
-Precedence:
+运算符优先级：
 
 ```text
 ¬ > ∧ > ∨ > → > ↔
 ```
 
-`→` is right-associative.
+其中 `→` 按右结合解析，例如 `A->B->C` 会被解析为 `A -> (B -> C)`。
 
-## Build
+## 编译方法
 
-MSVC:
+使用 MSVC：
 
 ```powershell
 cl /std:c++17 /EHsc /utf-8 /W4 /Fe:parser.exe parser.cpp
 ```
 
-GCC or Clang:
+使用 GCC 或 Clang：
 
 ```bash
 g++ -std=c++17 -Wall -Wextra -o parser parser.cpp
 ```
 
-## Run
+## 运行方法
 
-Windows:
+Windows：
 
 ```powershell
 .\parser.exe "(A∧B)→C"
 ```
 
-Linux or macOS:
+Linux 或 macOS：
 
 ```bash
 ./parser "(A∧B)→C"
 ```
 
-## Files
+## 文件说明
 
-- `ast.h`: AST node definitions and JSON helper functions.
-- `parser.h`: Tokenizer and parser interfaces.
-- `parser.cpp`: Tokenizer, recursive-descent parser, and command-line entry point.
+- `ast.h`：AST 节点定义和 JSON 辅助函数。
+- `parser.h`：Tokenizer 和 Parser 的接口声明。
+- `parser.cpp`：Tokenizer、递归下降解析器和命令行入口实现。
