@@ -1,0 +1,16 @@
+.agents/
+.codex/
+work/
+outputs/
+
+*.exe
+*.obj
+*.pdb
+*.ilk
+*.log
+
+.vs/
+Debug/
+Release/
+x64/
+x86/
