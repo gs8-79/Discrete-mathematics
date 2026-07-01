@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from nl_parser import parse_natural_puzzle
 from puzzles import all_puzzles
 
 
@@ -74,9 +75,80 @@ def test_puzzles() -> None:
         assert decoded, puzzle.id
 
 
+def test_natural_language_schedule_sat() -> None:
+    parsed = parse_natural_puzzle(
+        """人员：张三、李四、王五
+时段：上午、下午、晚上
+每人恰好一个时段，每个时段只安排一个人。
+张三不在上午。
+李四不能在晚上。
+王五在晚上。"""
+    )
+    assert parsed.ok, parsed.errors
+    assert parsed.puzzle is not None
+
+    result = run_json("dpll", stdin=parsed.puzzle.cnf)
+    assert_no_error("natural_schedule", result)
+    assert result["sat"] is True
+
+    decoded = parsed.puzzle.decoder(result["assignment"])
+    assert decoded["王五"] == "晚上"
+    assert decoded["张三"] != "上午"
+    assert decoded["李四"] != "晚上"
+
+
+def test_natural_language_schedule_unsat() -> None:
+    parsed = parse_natural_puzzle(
+        """人员：张三、李四
+时段：上午、下午
+张三在上午。
+张三不在上午。"""
+    )
+    assert parsed.ok, parsed.errors
+    assert parsed.puzzle is not None
+
+    result = run_json("dpll", stdin=parsed.puzzle.cnf)
+    assert_no_error("natural_schedule_unsat", result)
+    assert result["sat"] is False
+
+
+def test_natural_language_attributes_sat() -> None:
+    parsed = parse_natural_puzzle(
+        """人物：Ana、Ben、Cara
+宠物：猫、狗、鸟
+颜色：红色、蓝色、绿色
+每个人恰好一种宠物和一种颜色，每种宠物和颜色恰好属于一个人。
+Ben拥有狗。
+Cara喜欢蓝色。
+Ana不喜欢红色。
+拥有猫的人也喜欢绿色。"""
+    )
+    assert parsed.ok, parsed.errors
+    assert parsed.puzzle is not None
+
+    result = run_json("dpll", stdin=parsed.puzzle.cnf)
+    assert_no_error("natural_attributes", result)
+    assert result["sat"] is True
+
+    decoded = parsed.puzzle.decoder(result["assignment"])
+    assert decoded["Ben"]["宠物"] == "狗"
+    assert decoded["Cara"]["颜色"] == "蓝色"
+    assert decoded["Ana"]["颜色"] != "红色"
+
+
+def test_natural_language_unsupported_text() -> None:
+    parsed = parse_natural_puzzle("今天阳光很好，我们随便聊聊。")
+    assert parsed.ok is False
+    assert parsed.errors
+
+
 def main() -> int:
     test_core_modules()
     test_puzzles()
+    test_natural_language_schedule_sat()
+    test_natural_language_schedule_unsat()
+    test_natural_language_attributes_sat()
+    test_natural_language_unsupported_text()
     print("all tests passed")
     return 0
 

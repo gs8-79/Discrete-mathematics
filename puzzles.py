@@ -140,8 +140,8 @@ def sudoku4_puzzle() -> Puzzle:
 
 def logic_puzzle() -> Puzzle:
     people = ["Ana", "Ben", "Cara"]
-    pets = ["Cat", "Dog", "Bird"]
-    colors = ["Red", "Blue", "Green"]
+    pets = ["猫", "狗", "鸟"]
+    colors = ["红色", "蓝色", "绿色"]
     names = [f"{person}_Pet_{pet}" for person in people for pet in pets]
     names += [f"{person}_Color_{color}" for person in people for color in colors]
     var_map = make_var_map(names)
@@ -156,13 +156,13 @@ def logic_puzzle() -> Puzzle:
     for color in colors:
         clauses.extend(exactly_one(var_map, [f"{person}_Color_{color}" for person in people]))
 
-    clauses.append([pos(var_map, "Ben_Pet_Dog")])
-    clauses.append([pos(var_map, "Cara_Color_Blue")])
-    clauses.append([neg(var_map, "Ana_Color_Red")])
+    clauses.append([pos(var_map, "Ben_Pet_狗")])
+    clauses.append([pos(var_map, "Cara_Color_蓝色")])
+    clauses.append([neg(var_map, "Ana_Color_红色")])
 
     for person in people:
-        cat = f"{person}_Pet_Cat"
-        green = f"{person}_Color_Green"
+        cat = f"{person}_Pet_猫"
+        green = f"{person}_Color_绿色"
         clauses.append([neg(var_map, cat), pos(var_map, green)])
         clauses.append([neg(var_map, green), pos(var_map, cat)])
 
